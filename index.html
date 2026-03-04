@@ -2,8 +2,9 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Papan Informasi Digital - Masjid Jami' Al Radiologi</title>
+<title>Digital Masjid Jami' Al Radiologi</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body{
 margin:0;
@@ -11,18 +12,19 @@ font-family:Verdana;
 background:linear-gradient(135deg,#065f46,#022c22);
 color:white;
 text-align:center;
+transition:1s;
 overflow:hidden;
 }
-h1{
-font-size:50px;
-margin-top:20px;
+
+.night{
+background:linear-gradient(135deg,#000814,#001d3d);
 }
-.clock{
-font-size:90px;
-font-weight:bold;
-margin:20px;
-color:#00ffcc;
-}
+
+h1{font-size:50px;margin-top:20px;}
+.date{font-size:28px;}
+.clock{font-size:90px;color:#00ffcc;margin:20px;}
+.countdown{font-size:35px;color:yellow;margin-bottom:20px;}
+
 .grid{
 display:grid;
 grid-template-columns:repeat(3,1fr);
@@ -30,28 +32,46 @@ gap:20px;
 width:90%;
 margin:0 auto;
 }
+
 .box{
 background:#064e3b;
-padding:30px;
+padding:35px;
 border-radius:15px;
-font-size:40px;
+font-size:38px;
 box-shadow:0 0 20px rgba(0,255,200,0.5);
 }
+
+.alert{
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:black;
+color:white;
+display:none;
+justify-content:center;
+align-items:center;
+font-size:70px;
+z-index:999;
+flex-direction:column;
+}
+
 .marquee{
 position:absolute;
 bottom:0;
 width:100%;
 background:#022c22;
-padding:20px;
-font-size:30px;
+padding:15px;
+font-size:28px;
 white-space:nowrap;
 overflow:hidden;
 }
+
 .marquee span{
 display:inline-block;
 padding-left:100%;
-animation:scroll 20s linear infinite;
+animation:scroll 25s linear infinite;
 }
+
 @keyframes scroll{
 0%{transform:translateX(0);}
 100%{transform:translateX(-100%);}
@@ -61,31 +81,127 @@ animation:scroll 20s linear infinite;
 <body>
 
 <h1>🕌 MASJID JAMI' AL RADIOLOGI</h1>
+<div class="date" id="date"></div>
 <div class="clock" id="clock"></div>
+<div class="countdown" id="countdown"></div>
 
 <div class="grid">
-<div class="box">IMSAK<br>04:26</div>
-<div class="box">SUBUH<br>04:36</div>
-<div class="box">DZUHUR<br>12:01</div>
-<div class="box">ASHAR<br>15:02</div>
-<div class="box">MAGHRIB<br>18:07</div>
-<div class="box">ISYA<br>19:16</div>
+<div class="box" id="imsak"></div>
+<div class="box" id="subuh"></div>
+<div class="box" id="dzuhur"></div>
+<div class="box" id="ashar"></div>
+<div class="box" id="maghrib"></div>
+<div class="box" id="isya"></div>
 </div>
 
 <div class="marquee">
-<span>
-Jadwal Sholat Ramadhan 1447 H • Matikan HP Saat Sholat • Luruskan dan Rapatkan Shaf
-</span>
+<span>Matikan HP Saat Sholat • Luruskan & Rapatkan Shaf • Jaga Kebersihan Masjid</span>
 </div>
 
+<div class="alert" id="alertBox">
+<div>🔔 WAKTU SHOLAT TELAH TIBA</div>
+<div id="sholatName"></div>
+</div>
+
+<audio id="adzanAudio" src="adzan.mp3"></audio>
+
 <script>
+
+// ================= DATA JADWAL =================
+const jadwal={
+"2026-03-04":["04:26","04:36","12:01","15:02","18:07","19:16"]
+};
+
+const sholatNames=["Imsak","Subuh","Dzuhur","Ashar","Maghrib","Isya"];
+
+// ============= JAM REALTIME ===================
 function updateClock(){
 const now=new Date();
 document.getElementById("clock").innerText=
 now.toLocaleTimeString("id-ID");
+document.getElementById("date").innerText=
+now.toLocaleDateString("id-ID",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+checkAdzan();
+updateCountdown();
 }
 setInterval(updateClock,1000);
 updateClock();
+
+// ============= LOAD JADWAL ===================
+function loadJadwal(){
+const today=new Date().toISOString().slice(0,10);
+const data=jadwal[today];
+if(!data) return;
+
+["imsak","subuh","dzuhur","ashar","maghrib","isya"].forEach((id,i)=>{
+document.getElementById(id).innerHTML=sholatNames[i]+"<br>"+data[i];
+});
+}
+loadJadwal();
+
+// ============= COUNTDOWN ===================
+function updateCountdown(){
+const now=new Date();
+const today=new Date().toISOString().slice(0,10);
+const data=jadwal[today];
+if(!data) return;
+
+let nextTime=null;
+let nextName=null;
+
+for(let i=0;i<data.length;i++){
+const [h,m]=data[i].split(":");
+const waktu=new Date();
+waktu.setHours(h,m,0);
+if(waktu>now){
+nextTime=waktu;
+nextName=sholatNames[i];
+break;
+}
+}
+
+if(nextTime){
+const diff=(nextTime-now)/1000;
+const h=Math.floor(diff/3600);
+const m=Math.floor((diff%3600)/60);
+const s=Math.floor(diff%60);
+document.getElementById("countdown").innerText=
+"Menuju "+nextName+" : "+
+String(h).padStart(2,"0")+":"+
+String(m).padStart(2,"0")+":"+
+String(s).padStart(2,"0");
+}
+
+// Mode malam otomatis
+const maghrib=data[4].split(":");
+const maghribTime=new Date();
+maghribTime.setHours(maghrib[0],maghrib[1],0);
+if(now>maghribTime){
+document.body.classList.add("night");
+}
+}
+
+// ============= ALARM ADZAN ===================
+function checkAdzan(){
+const now=new Date();
+const today=new Date().toISOString().slice(0,10);
+const data=jadwal[today];
+if(!data) return;
+
+data.forEach((waktu,i)=>{
+const [h,m]=waktu.split(":");
+if(now.getHours()==h && now.getMinutes()==m && now.getSeconds()==0){
+document.getElementById("alertBox").style.display="flex";
+document.getElementById("sholatName").innerText=sholatNames[i];
+document.getElementById("adzanAudio").play();
+
+setTimeout(()=>{
+document.getElementById("alertBox").style.display="none";
+},60000);
+}
+});
+}
+
 </script>
 
 </body>

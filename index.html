@@ -7,60 +7,50 @@
 <style>
 body{
 margin:0;
-font-family:Arial, sans-serif;
-background:#0b1f1a;
+font-family:Verdana;
+background:linear-gradient(135deg,#065f46,#022c22);
 color:white;
+text-align:center;
 overflow:hidden;
 }
-.header{
-text-align:center;
-padding:20px;
-background:#064e3b;
-font-size:40px;
-font-weight:bold;
+h1{
+font-size:50px;
+margin-top:20px;
 }
 .clock{
-position:absolute;
-top:20px;
-right:40px;
-font-size:60px;
+font-size:90px;
 font-weight:bold;
+margin:20px;
 color:#00ffcc;
 }
-table{
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:20px;
 width:90%;
-margin:40px auto;
-border-collapse:collapse;
-font-size:28px;
+margin:0 auto;
 }
-th,td{
-border:1px solid #00ffcc;
-padding:12px;
-text-align:center;
-}
-th{
-background:#065f46;
-}
-.today{
-background:#00ffcc;
-color:black;
-font-weight:bold;
+.box{
+background:#064e3b;
+padding:30px;
+border-radius:15px;
+font-size:40px;
+box-shadow:0 0 20px rgba(0,255,200,0.5);
 }
 .marquee{
 position:absolute;
 bottom:0;
 width:100%;
-background:#064e3b;
-color:white;
-font-size:28px;
-padding:15px;
+background:#022c22;
+padding:20px;
+font-size:30px;
 white-space:nowrap;
 overflow:hidden;
 }
 .marquee span{
 display:inline-block;
 padding-left:100%;
-animation:scroll 25s linear infinite;
+animation:scroll 20s linear infinite;
 }
 @keyframes scroll{
 0%{transform:translateX(0);}
@@ -70,42 +60,29 @@ animation:scroll 25s linear infinite;
 </head>
 <body>
 
-<div class="header">🕌 MASJID JAMI' AL RADIOLOGI</div>
+<h1>🕌 MASJID JAMI' AL RADIOLOGI</h1>
 <div class="clock" id="clock"></div>
 
-<table>
-<tr>
-<th>Tanggal</th>
-<th>Imsak</th>
-<th>Subuh</th>
-<th>Dzuhur</th>
-<th>Ashar</th>
-<th>Maghrib</th>
-<th>Isya</th>
-</tr>
-
-<tr class="today">
-<td>Rabu, 04/03/2026 (HARI INI)</td>
-<td>04:26</td><td>04:36</td><td>12:01</td><td>15:02</td><td>18:07</td><td>19:16</td>
-</tr>
-
-<tr><td>05/03/2026</td><td>04:26</td><td>04:36</td><td>12:01</td><td>15:02</td><td>18:07</td><td>19:16</td></tr>
-<tr><td>06/03/2026</td><td>04:26</td><td>04:36</td><td>12:01</td><td>15:03</td><td>18:07</td><td>19:15</td></tr>
-<tr><td>07/03/2026</td><td>04:26</td><td>04:36</td><td>12:01</td><td>15:03</td><td>18:06</td><td>19:15</td></tr>
-
-</table>
+<div class="grid">
+<div class="box">IMSAK<br>04:26</div>
+<div class="box">SUBUH<br>04:36</div>
+<div class="box">DZUHUR<br>12:01</div>
+<div class="box">ASHAR<br>15:02</div>
+<div class="box">MAGHRIB<br>18:07</div>
+<div class="box">ISYA<br>19:16</div>
+</div>
 
 <div class="marquee">
 <span>
-Selamat Menunaikan Ibadah Puasa Ramadhan 1447 H • Matikan HP Saat Sholat • Rapikan Shaf • Jaga Kebersihan Masjid
+Jadwal Sholat Ramadhan 1447 H • Matikan HP Saat Sholat • Luruskan dan Rapatkan Shaf
 </span>
 </div>
 
 <script>
 function updateClock(){
 const now=new Date();
-const time=now.toLocaleTimeString("id-ID");
-document.getElementById("clock").innerText=time;
+document.getElementById("clock").innerText=
+now.toLocaleTimeString("id-ID");
 }
 setInterval(updateClock,1000);
 updateClock();
